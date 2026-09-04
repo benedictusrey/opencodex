@@ -274,6 +274,9 @@ function routedDisplayName(slug: string): string {
   if (slash <= 0) return slug;
   const provider = slug.slice(0, slash);
   let model = slug.slice(slash + 1);
+  if (provider === "google-antigravity") {
+    return "agy/" + model;
+  }
   if (provider === "command-code" || provider === "commandcode") {
     const m = model.match(/^([a-z0-9]+)-([a-z0-9]+(?:-[a-z0-9]+)+)$/i);
     if (m && model.startsWith(`${m[1]}-${m[1]}-`)) model = model.slice(m[1]!.length + 1);
