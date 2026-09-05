@@ -84,6 +84,7 @@ export interface OpencodeRoutedModel {
   displayName?: string;
   /** Declared effort ladder; exported as opencode model variants when present. */
   reasoningEfforts?: readonly string[];
+  inputModalities?: readonly string[];
 }
 
 /** Row shape from authenticated GET /api/models on the running proxy. */
@@ -234,6 +235,7 @@ function opencodeLaunchCatalog(
       id: model.id,
       contextWindow: model.contextWindow,
       displayName: model.displayName,
+      ...(model.inputModalities && model.inputModalities.length > 0 ? { inputModalities: [...model.inputModalities] } : {}),
       ...(model.reasoningEfforts && model.reasoningEfforts.length > 0
         ? { reasoningEfforts: [...model.reasoningEfforts] }
         : {}),
@@ -391,6 +393,7 @@ export function opencodeCatalogFromProxyRows(
       id: row.id,
       contextWindow: row.contextWindow,
       displayName: row.displayNameSource === "fallback" ? undefined : row.displayName,
+      ...(Array.isArray(row.inputModalities) && row.inputModalities.length > 0 ? { inputModalities: [...row.inputModalities] } : {}),
       ...(typeof row.fastRowAvailable === "boolean" ? { fastRowAvailable: row.fastRowAvailable } : {}),
       ...(Array.isArray(row.reasoningEfforts) && row.reasoningEfforts.length > 0
         ? { reasoningEfforts: [...row.reasoningEfforts] }

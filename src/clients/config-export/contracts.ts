@@ -40,6 +40,7 @@ export interface OpencodeCatalogModel {
   displayName?: string;
   /** Declared effort ladder. Exported as opencode model variants where the client reads them. */
   reasoningEfforts?: readonly string[];
+  inputModalities?: readonly string[];
   /**
    * Declared default effort. Carried so every client export reads one deduped, visibility-
    * filtered ladder per model. The opencode serializer deliberately does NOT turn it into a

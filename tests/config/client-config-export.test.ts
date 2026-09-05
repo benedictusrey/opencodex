@@ -264,12 +264,20 @@ describe("OpenCode V2 block (reasoning-effort variants)", () => {
     expect(models["opencode-go/empty-ladder"]!.variants).toBeUndefined();
   });
 
-  test("the legacy block stays variant-free instead of carrying fields opencode ignores", () => {
+  test("the legacy block carries variants in object map format for opencode", () => {
     const config = buildClientConfig("opencode", ladderCtx()) as OpencodeGeneratedConfig;
-    for (const entry of Object.values(config.provider.opencodex!.models)) {
-      expect(entry).not.toHaveProperty("variants");
-      expect(entry).not.toHaveProperty("settings");
-    }
+    const models = config.provider.opencodex!.models;
+    expect(models["opencode-go/glm-5.3"]!.variants).toEqual({
+      low: { reasoningEffort: "low" },
+      high: { reasoningEffort: "high" },
+      max: { reasoningEffort: "max" },
+    });
+    expect(models["opencode-go/deepseek-v4-flash"]!.variants).toEqual({
+      minimal: { reasoningEffort: "minimal" },
+      high: { reasoningEffort: "high" },
+    });
+    expect(models["opencode-go/none-only"]!.variants).toBeUndefined();
+    expect(models["opencode-go/no-ladder"]!.variants).toBeUndefined();
   });
 
   test("both blocks describe the same model set and the same connection", () => {
@@ -749,9 +757,17 @@ describe("hub-resolved Fast exports", () => {
     const expanded = opencodeProviderBlocks(BASE_URL, [eligible], cfg({ fastRows: false }));
     expect(expanded.v1.models["remote/model--fast"]).toEqual({
       name: "Remote Model Fast (remote)", limit: { context: 8192, output: 8192 },
+      attachment: true,
+      modalities: { input: ["text", "image"], output: ["text"] },
+      variants: {
+        high: { reasoningEffort: "high" },
+        ultra: { reasoningEffort: "ultra" },
+      },
     });
     expect(expanded.v2.models["remote/model--fast"]).toEqual({
       name: "Remote Model Fast (remote)", limit: { context: 8192, output: 8192 },
+      attachment: true,
+      modalities: { input: ["text", "image"], output: ["text"] },
       variants: [
         { id: "high", settings: { reasoningEffort: "high" } },
         { id: "ultra", settings: { reasoningEffort: "ultra" } },

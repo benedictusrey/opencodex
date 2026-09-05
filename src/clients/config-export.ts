@@ -51,6 +51,9 @@ import { buildZcodeClientConfig, summarizeZcode, buildZcodeContribution } from "
 export interface OpencodeModelEntry {
   name: string;
   limit?: { context: number; output: number };
+  attachment?: boolean;
+  modalities?: { input: string[]; output?: string[] };
+  variants?: Record<string, { reasoningEffort: string }>;
 }
 
 /**
@@ -581,6 +584,17 @@ function opencodeEffortVariants(model: OpencodeCatalogModel): OpencodeModelVaria
  * working: V2 merges them by provider id and model id, so a model listed in both blocks
  * appears once, with the V2 entry's name, connection, and variants.
  */
+function opencodeEffortVariantsRecord(
+  model: OpencodeCatalogModel,
+): Record<string, { reasoningEffort: string }> | undefined {
+  if (model.reasoningEfforts === undefined) return undefined;
+  const efforts = canonicalizeReasoningEfforts(model.reasoningEfforts).filter(effort => effort !== "none");
+  if (efforts.length === 0) return undefined;
+  const variants: Record<string, { reasoningEffort: string }> = {};
+  for (const effort of efforts) variants[effort] = { reasoningEffort: effort };
+  return variants;
+}
+
 export function opencodeProviderBlocks(
   baseURL: string,
   catalogModels: readonly OpencodeCatalogModel[],
@@ -595,6 +609,17 @@ export function opencodeProviderBlocks(
     if (context !== undefined) {
       entry.limit = { context, output: outputBudgetFor(context) };
     }
+    if (model.inputModalities !== undefined && model.inputModalities.length > 0) {
+      const input = inputModalitiesForClient("opencode", model.inputModalities);
+      if (input && input.length > 0) {
+        entry.modalities = { input, output: ["text"] };
+        if (input.includes("image")) {
+          entry.attachment = true;
+        }
+      }
+    }
+    const variantsRecord = opencodeEffortVariantsRecord(model);
+    if (variantsRecord) entry.variants = variantsRecord;
     v1Models[key] = entry;
     const variants = opencodeEffortVariants(model);
     // Own `limit` object, not a shared reference: the two blocks are serialized and reasoned

@@ -52,14 +52,15 @@ export function outputBudgetFor(context: number): number {
  * boundaries carry catalog modalities verbatim on purpose, and stripping `audio`
  * globally would destroy valid metadata before the destination is known.
  */
-const CLIENT_INPUT_MODALITIES: Record<"pi" | "gajae", ReadonlySet<string>> = {
+const CLIENT_INPUT_MODALITIES: Record<"pi" | "gajae" | "opencode", ReadonlySet<string>> = {
+  opencode: new Set(["text", "image", "audio", "video", "pdf"]),
   pi: new Set(["text", "image"]),
   gajae: new Set(["text", "image"]),
 };
 
 /** `null` means the model cannot be represented for this client — drop the row. */
 export function inputModalitiesForClient(
-  client: "pi" | "gajae",
+  client: "pi" | "gajae" | "opencode",
   modalities: readonly string[] | undefined,
 ): string[] | null {
   const declared = modalities ?? [];

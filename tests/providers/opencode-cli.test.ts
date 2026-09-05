@@ -350,7 +350,11 @@ describe("ocx opencode proxy model catalog", () => {
     expect(blocks.v2.models["opencode-go/plain"]!.variants).toBeUndefined();
     // The legacy block never carries variants, and both generations describe the same models:
     // that is what makes opencode's merge produce one entry per model.
-    expect(blocks.v1.models["opencode-go/glm-5.3"]).not.toHaveProperty("variants");
+    expect(blocks.v1.models["opencode-go/glm-5.3"]!.variants).toEqual({
+      low: { reasoningEffort: "low" },
+      high: { reasoningEffort: "high" },
+      max: { reasoningEffort: "max" },
+    });
     expect(Object.keys(blocks.v2.models)).toEqual(Object.keys(blocks.v1.models));
     expect(Object.keys(blocks.v1.models)).not.toContain("opencode-go/hidden");
   });
